@@ -1,6 +1,7 @@
 import { SkCanvas, SkSurface, Skia } from "@shopify/react-native-skia";
 import quantize from "quantize";
 import { ArrayRGB, ColorFormats, formatRGB } from "./color-converters";
+import { logCompatibilityStatus, checkCompatibility, FullCompatibilityResult } from "./version-compatibility";
 
 /**
  * Configuration options for the ColorThief class
@@ -41,6 +42,11 @@ export interface ColorThiefConfig {
    * @default 256
    */
   canvasSize?: number;
+  /**
+   * Whether to suppress compatibility warnings on initialization
+   * @default false
+   */
+  suppressCompatibilityWarnings?: boolean;
 }
 
 /**
@@ -110,7 +116,7 @@ export interface PaletteResult {
  */
 export class ReactNativeColorThief {
   /** Current configuration settings */
-  private config: Required<ColorThiefConfig>;
+  private config: Required<ColorThiefConfig> & { suppressCompatibilityWarnings: boolean };
   /** Offscreen surface for image processing */
   private offScreen: SkSurface | null = null;
   /** Canvas for drawing operations */
@@ -144,7 +150,19 @@ export class ReactNativeColorThief {
       excludeWhite: config.excludeWhite ?? true,
       whiteThreshold: config.whiteThreshold ?? 250,
       canvasSize: config.canvasSize ?? 256,
+      suppressCompatibilityWarnings: config.suppressCompatibilityWarnings ?? false,
     };
+
+    // Check version compatibility on initialization
+    if (!this.config.suppressCompatibilityWarnings) {
+      const isCompatible = logCompatibilityStatus();
+      if (!isCompatible) {
+        console.warn(
+          '🎨 react-native-color-thief may not work correctly with incompatible versions. ' +
+          'Please update your dependencies or set suppressCompatibilityWarnings: true to hide this warning.'
+        );
+      }
+    }
   }
 
   /**
@@ -564,6 +582,7 @@ export class ReactNativeColorThief {
       excludeWhite: true,
       whiteThreshold: 250,
       canvasSize: 256,
+      suppressCompatibilityWarnings: false,
     };
   }
 
@@ -596,6 +615,38 @@ export class ReactNativeColorThief {
     ];
     const lowerURI = sourceURI.toLowerCase();
     return supportedExtensions.some((ext) => lowerURI.endsWith(ext));
+  }
+
+  /**
+   * Check version compatibility for React, React Native, and Skia
+   *
+   * Validates that the current environment has compatible versions of all required dependencies.
+   * Returns detailed compatibility information including warnings and errors.
+   *
+   * @returns {object} Compatibility check results
+   * @returns {boolean} isCompatible - Whether all dependencies are compatible
+   * @returns {boolean} hasWarnings - Whether there are any compatibility warnings
+   * @returns {object} react - React compatibility details
+   * @returns {object} reactNative - React Native compatibility details  
+   * @returns {object} skia - React Native Skia compatibility details
+   * @returns {string[]} platformRequirements - Platform version requirements
+   * 
+   * @example
+   * ```typescript
+   * const colorThief = new ReactNativeColorThief();
+   * const compatibility = colorThief.checkVersionCompatibility();
+   * 
+   * if (!compatibility.isCompatible) {
+   *   console.error('Incompatible versions detected:', compatibility);
+   * }
+   * 
+   * if (compatibility.hasWarnings) {
+   *   console.warn('Version warnings:', compatibility);
+   * }
+   * ```
+   */
+  public checkVersionCompatibility(): FullCompatibilityResult {
+    return checkCompatibility();
   }
 
   /**
@@ -727,3 +778,14 @@ export const getProminentColors = async (
   const colors = await colorThief.getProminentColors(sourceURI);
   return colors.map((color) => color.formats.hex);
 };
+
+// Export version compatibility utilities
+export {
+  checkCompatibility,
+  logCompatibilityStatus,
+  getRecommendedSkiaVersion,
+  supportsVideoFeatures,
+  parseVersion,
+  compareVersions,
+  getPackageVersion
+} from './version-compatibility';

@@ -23,12 +23,84 @@ yarn add react-native-color-thief
 
 ### Dependencies
 
-This library requires `@shopify/react-native-skia` and `quantize` as peer dependencies:
+This library requires `@shopify/react-native-skia` as a peer dependency:
 
 ```bash
-npm install @shopify/react-native-skia quantize
+npm install @shopify/react-native-skia
 # or
-yarn add @shopify/react-native-skia quantize
+yarn add @shopify/react-native-skia
+```
+
+## Version Compatibility
+
+### Supported Versions
+
+**For full feature support (recommended):**
+- React: `>=19.0.0`
+- React Native: `>=0.79.0`
+- React Native Skia: `>=2.0.0`
+
+**Legacy support:**
+- React: `>=18.0.0`
+- React Native: `>=0.70.0`
+- React Native Skia: `>=1.0.0`
+
+### Platform Requirements
+
+- **iOS**: 14.0 or higher
+- **Android**: API level 21 (Android 5.0) or higher
+- **Android with video support**: API level 26 (Android 8.0) or higher
+
+### Version-Specific Compatibility
+
+#### React Native ≤0.78 with React ≤18
+
+If you're using React Native 0.78 or below with React 18 or below, you **must** use React Native Skia version 1.12.4 or below:
+
+```bash
+npm install @shopify/react-native-skia@1.12.4
+# or
+yarn add @shopify/react-native-skia@1.12.4
+```
+
+#### React Native ≥0.79 with React ≥19
+
+For React Native 0.79+ with React 19+, use the latest React Native Skia:
+
+```bash
+npm install @shopify/react-native-skia@latest
+# or
+yarn add @shopify/react-native-skia@latest
+```
+
+### Expo Compatibility
+
+This library is fully compatible with Expo projects using:
+- Expo SDK 50+ (React Native 0.73+)
+- Custom development builds (required for React Native Skia)
+
+**Note**: React Native Skia requires a custom development build and cannot be used with Expo Go.
+
+### Automatic Compatibility Checking
+
+The library automatically checks version compatibility on initialization and will warn you about any issues:
+
+```typescript
+import { ReactNativeColorThief } from 'react-native-color-thief';
+
+// Automatic compatibility check on initialization
+const colorThief = new ReactNativeColorThief();
+
+// Suppress compatibility warnings (not recommended)
+const colorThief = new ReactNativeColorThief({
+  suppressCompatibilityWarnings: true
+});
+
+// Manual compatibility check
+const compatibility = colorThief.checkVersionCompatibility();
+if (!compatibility.isCompatible) {
+  console.error('Version compatibility issues:', compatibility);
+}
 ```
 
 ## Quick Start
@@ -392,6 +464,66 @@ The library throws descriptive errors for various scenarios:
 - Empty or corrupted images
 
 Always wrap calls in try-catch blocks for production use.
+
+## Troubleshooting
+
+### Version Compatibility Issues
+
+If you encounter compatibility warnings or errors, follow these steps:
+
+1. **Check your versions:**
+   ```bash
+   npm list react react-native @shopify/react-native-skia
+   ```
+
+2. **For React Native ≤0.78 projects:**
+   ```bash
+   npm install @shopify/react-native-skia@1.12.4
+   ```
+
+3. **For React Native ≥0.79 projects:**
+   ```bash
+   npm install @shopify/react-native-skia@latest
+   ```
+
+4. **Run the compatibility checker:**
+   ```bash
+   npx react-native-color-thief-check
+   ```
+
+### Common Issues
+
+#### "Skia not found" Error
+- Ensure `@shopify/react-native-skia` is installed
+- For Expo projects, make sure you're using a custom development build
+- Rebuild your project after installing Skia
+
+#### "Incompatible Skia version" Warning
+- Check your React Native version
+- Install the appropriate Skia version (see compatibility table above)
+- Clear your cache: `npx react-native start --reset-cache`
+
+#### Metro bundler issues
+- Add to your `metro.config.js`:
+  ```javascript
+  module.exports = {
+    resolver: {
+      alias: {
+        'react-native-color-thief': require.resolve('react-native-color-thief'),
+      },
+    },
+  };
+  ```
+
+### Platform-Specific Issues
+
+#### iOS Build Errors
+- Ensure iOS deployment target is set to 14.0 or higher in Xcode
+- Run `cd ios && pod install` after installing dependencies
+
+#### Android Build Errors
+- Set `minSdkVersion` to 21 or higher in `android/build.gradle`
+- For video support, set `minSdkVersion` to 26 or higher
 
 ## Contributing
 

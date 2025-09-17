@@ -1,26 +1,65 @@
 {
   "name": "react-native-color-thief",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "A powerful React Native library for extracting prominent colors from images and SVGs using Skia rendering engine",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "bin": {
+    "react-native-color-thief-check": "./scripts/check-compatibility.js"
+  },
+  "files": [
+    "lib/",
+    "scripts/",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "clean": "rm -rf lib/",
+    "prepublishOnly": "npm run clean && npm run build",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "postinstall": "node scripts/check-compatibility.js"
   },
-  "keywords": [],
+  "keywords": [
+    "react-native",
+    "color-thief",
+    "color-extraction",
+    "image-processing",
+    "skia",
+    "expo",
+    "color-palette",
+    "dominant-color"
+  ],
   "author": "",
   "license": "ISC",
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0",
+    "react-native": ">=0.70.0",
+    "@shopify/react-native-skia": ">=1.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@shopify/react-native-skia": {
+      "optional": false
+    }
+  },
   "dependencies": {
-    "@shopify/react-native-skia": "^2.2.15",
     "color-convert": "^3.1.2",
     "quantize": "^1.0.2"
   },
   "devDependencies": {
+    "@shopify/react-native-skia": "^2.2.15",
     "@types/jest": "^29.5.5",
     "@types/quantize": "^1.0.0",
     "jest": "^29.7.0",
     "ts-jest": "^29.1.1",
-    "typescript": "^5.2.2"
+    "typescript": "^5.2.2",
+    "react": "^19.0.0",
+    "react-native": "^0.79.0"
   }
 }

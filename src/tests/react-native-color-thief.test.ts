@@ -150,6 +150,7 @@ describe('ReactNativeColorThief', () => {
         excludeWhite: false,
         whiteThreshold: 200,
         canvasSize: 512,
+        suppressCompatibilityWarnings: true,
       };
 
       const instance = new ReactNativeColorThief(customConfig);
