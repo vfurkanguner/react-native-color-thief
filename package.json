@@ -1,5 +1,5 @@
 {
-  "name": "react-native-color-thief",
+  "name": "rn-color-thief",
   "version": "1.0.0",
   "description": "A powerful React Native library for extracting prominent colors from images and SVGs using Skia rendering engine",
   "main": "lib/index.js",
