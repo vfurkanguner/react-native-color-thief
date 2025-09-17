@@ -22,14 +22,59 @@ function log(message, color = 'reset') {
 }
 
 function getPackageVersion(packageName, projectRoot) {
+  // Try multiple strategies to find the package
+  const searchPaths = [
+    // User's project node_modules
+    path.join(projectRoot, 'node_modules', packageName, 'package.json'),
+    // Parent directory node_modules (if running from within node_modules)
+    path.join(projectRoot, '..', '..', packageName, 'package.json'),
+    // Go up to find the actual project root and check node_modules there
+    path.join(projectRoot, '..', '..', '..', 'node_modules', packageName, 'package.json'),
+  ];
+
+  for (const packageJsonPath of searchPaths) {
+    try {
+      if (fs.existsSync(packageJsonPath)) {
+        const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+        return packageJson.version;
+      }
+    } catch (error) {
+      // Continue to next path
+      continue;
+    }
+  }
+
+  // Fallback: try to use require.resolve to find the package
   try {
-    const packageJsonPath = path.join(projectRoot, 'node_modules', packageName, 'package.json');
+    const resolvedPath = require.resolve(`${packageName}/package.json`, { paths: [projectRoot] });
+    const packageJson = JSON.parse(fs.readFileSync(resolvedPath, 'utf8'));
+    return packageJson.version;
+  } catch (error) {
+    // Package not found
+  }
+
+  return null;
+}
+
+function getVersionFromPackageJson(packageName, projectRoot) {
+  try {
+    const packageJsonPath = path.join(projectRoot, 'package.json');
     if (fs.existsSync(packageJsonPath)) {
       const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
-      return packageJson.version;
+      const allDeps = {
+        ...packageJson.dependencies,
+        ...packageJson.devDependencies,
+        ...packageJson.peerDependencies
+      };
+      
+      const version = allDeps[packageName];
+      if (version) {
+        // Remove version prefixes like ^, ~, >=, etc.
+        return version.replace(/^[\^~>=<]+/, '');
+      }
     }
   } catch (error) {
-    // Package not found or invalid
+    // Package.json not found or invalid
   }
   return null;
 }
@@ -53,18 +98,69 @@ function compareVersions(v1, v2) {
   return v1.patch - v2.patch;
 }
 
-function checkVersionCompatibility() {
-  const projectRoot = process.cwd();
+function findProjectRoot() {
+  // Start from current working directory
+  let currentDir = process.cwd();
+  
+  // If we're running from within node_modules, go up to find the actual project
+  if (currentDir.includes('node_modules')) {
+    // Find the project root by going up from node_modules
+    const nodeModulesIndex = currentDir.indexOf('node_modules');
+    currentDir = currentDir.substring(0, nodeModulesIndex - 1); // -1 to remove trailing slash
+  }
+  
+  // Look for package.json to confirm we're in a project root
+  let searchDir = currentDir;
+  while (searchDir !== path.dirname(searchDir)) {
+    const packageJsonPath = path.join(searchDir, 'package.json');
+    if (fs.existsSync(packageJsonPath)) {
+      // Check if this package.json has react-native or react as dependencies
+      try {
+        const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+        const allDeps = {
+          ...packageJson.dependencies,
+          ...packageJson.devDependencies,
+          ...packageJson.peerDependencies
+        };
+        
+        // Skip if this is the rn-color-thief package itself
+        if (packageJson.name === 'rn-color-thief') {
+          searchDir = path.dirname(searchDir);
+          continue;
+        }
+        
+        if (allDeps.react || allDeps['react-native'] || allDeps['@shopify/react-native-skia']) {
+          return searchDir;
+        }
+      } catch (error) {
+        // Continue searching
+      }
+    }
+    searchDir = path.dirname(searchDir);
+  }
+  
+  // Fallback to current working directory
+  return currentDir;
+}
+
+function checkVersionCompatibility(debug = false) {
+  const projectRoot = findProjectRoot();
   let hasErrors = false;
   let hasWarnings = false;
 
   log('\n🔍 Checking react-native-color-thief compatibility...', 'blue');
   log('=' .repeat(60), 'blue');
 
-  // Get installed versions
-  const reactVersion = getPackageVersion('react', projectRoot);
-  const reactNativeVersion = getPackageVersion('react-native', projectRoot);
-  const skiaVersion = getPackageVersion('@shopify/react-native-skia', projectRoot);
+  if (debug) {
+    log(`\n🔧 Debug Info:`, 'yellow');
+    log(`   Current working directory: ${process.cwd()}`, 'yellow');
+    log(`   Detected project root: ${projectRoot}`, 'yellow');
+  }
+
+  // Get installed versions - try node_modules first, then fallback to package.json
+  const reactVersion = getPackageVersion('react', projectRoot) || getVersionFromPackageJson('react', projectRoot);
+  const reactNativeVersion = getPackageVersion('react-native', projectRoot) || getVersionFromPackageJson('react-native', projectRoot);
+  const skiaVersion = getPackageVersion('@shopify/react-native-skia', projectRoot) || getVersionFromPackageJson('@shopify/react-native-skia', projectRoot);
 
   log(`\n📦 Detected versions:`, 'bold');
   log(`   React: ${reactVersion || 'Not found'}`, reactVersion ? 'green' : 'red');
@@ -190,7 +286,8 @@ function checkVersionCompatibility() {
 
 // Run compatibility check
 if (require.main === module) {
-  checkVersionCompatibility();
+  const debug = process.argv.includes('--debug') || process.argv.includes('-d');
+  checkVersionCompatibility(debug);
 }
 
 module.exports = { checkVersionCompatibility };
