@@ -33,7 +33,7 @@
     "color-palette",
     "dominant-color"
   ],
-  "author": "",
+  "author": "vfurkanguner",
   "license": "ISC",
   "engines": {
     "node": ">=16.0.0"
