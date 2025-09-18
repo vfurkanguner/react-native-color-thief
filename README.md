@@ -93,7 +93,7 @@ This library is fully compatible with Expo projects using:
 The library automatically checks version compatibility on initialization and will warn you about any issues:
 
 ```typescript
-import { ReactNativeColorThief } from 'react-native-color-thief';
+import { ReactNativeColorThief } from 'rn-color-thief';
 
 // Automatic compatibility check on initialization
 const colorThief = new ReactNativeColorThief();
@@ -113,7 +113,7 @@ if (!compatibility.isCompatible) {
 ## Quick Start
 
 ```typescript
-import { ReactNativeColorThief } from 'react-native-color-thief';
+import { ReactNativeColorThief } from 'rn-color-thief';
 
 const colorThief = new ReactNativeColorThief();
 
@@ -226,7 +226,7 @@ colorThief.resetConfig(); // Reset to defaults
 ### Basic Usage
 
 ```typescript
-import { ReactNativeColorThief } from 'react-native-color-thief';
+import { ReactNativeColorThief } from 'rn-color-thief';
 
 const extractColors = async (imageURI: string) => {
   const colorThief = new ReactNativeColorThief();
@@ -270,7 +270,7 @@ const palette = await colorThief.getPalette(imageURI);
 ```typescript
 import React, { useState, useEffect } from 'react';
 import { View, Image, Text } from 'react-native';
-import { ReactNativeColorThief } from 'react-native-color-thief';
+import { ReactNativeColorThief } from 'rn-color-thief';
 
 const ColorfulImageCard = ({ imageURI }) => {
   const [colors, setColors] = useState(null);
@@ -421,7 +421,7 @@ interface PaletteResult {
 ### Factory Function
 
 ```typescript
-import { createColorThief } from 'react-native-color-thief';
+import { createColorThief } from 'rn-color-thief';
 
 const colorThief = createColorThief({
   quality: 8,
@@ -432,7 +432,7 @@ const colorThief = createColorThief({
 ### Default Instance
 
 ```typescript
-import { defaultColorThief } from 'react-native-color-thief';
+import { defaultColorThief } from 'rn-color-thief';
 
 const colors = await defaultColorThief.getProminentColors(imageURI);
 ```
@@ -440,7 +440,7 @@ const colors = await defaultColorThief.getProminentColors(imageURI);
 ### Legacy Function (Deprecated)
 
 ```typescript
-import { getProminentColors } from 'react-native-color-thief';
+import { getProminentColors } from 'rn-color-thief';
 
 // Returns hex strings only
 const hexColors = await getProminentColors(imageURI);
@@ -495,7 +495,7 @@ If you encounter compatibility warnings or errors, follow these steps:
 
 4. **Run the compatibility checker:**
    ```bash
-   npx react-native-color-thief-check
+   npx rn-color-thief-check
    ```
 
 ### Common Issues
@@ -516,7 +516,7 @@ If you encounter compatibility warnings or errors, follow these steps:
   module.exports = {
     resolver: {
       alias: {
-        'react-native-color-thief': require.resolve('react-native-color-thief'),
+        'rn-color-thief': require.resolve('rn-color-thief'),
       },
     },
   };
