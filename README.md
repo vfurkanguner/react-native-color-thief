@@ -13,6 +13,13 @@ A powerful React Native library for extracting prominent colors from images and 
 - 🎪 Support for multiple color formats (HEX, RGB, HSL, CSS keywords)
 - 🖼️ Support for various image formats (JPG, PNG, GIF, BMP, WebP, SVG)
 
+
+
+
+| iOS | Android |
+|-----|---------|
+| <img width="300" height="652" alt="iOS Screenshot" src="https://github.com/user-attachments/assets/b2ca54ec-0aeb-4f08-86cc-87a1456b5721" /> | <img width="300" height="633" alt="Android Screenshot" src="https://github.com/user-attachments/assets/cd7df4cb-cf6b-45d5-b480-27cba25d576f" /> |
+
 ## Installation
 
 ```bash
