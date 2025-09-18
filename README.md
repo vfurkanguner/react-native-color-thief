@@ -23,9 +23,9 @@ A powerful React Native library for extracting prominent colors from images and 
 ## Installation
 
 ```bash
-npm install react-native-color-thief
+npm install rn-color-thief
 # or
-yarn add react-native-color-thief
+yarn add rn-color-thief
 ```
 
 ### Dependencies
